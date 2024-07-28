@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from './CartContext';
 import {  useNavigate } from 'react-router-dom';
+import './Product.css'
 
 
 const Product = ({ product }) => {
@@ -18,14 +19,14 @@ const Product = ({ product }) => {
   };
 
   return (
-    <div className=" bg-opacity-45 w-80 mt-10 bg-black rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105 duration-300">
+    <div className="card bg-opacity-45 w-80  mt-10 bg-black rounded-lg shadow-lg overflow-hidden transform transition-transform hover:scale-105 duration-300">
       <Link to={`/product/${product.idMeal}`}>
         <img
           src={product.strMealThumb}
           alt={product.strMeal}
           className="w-full h-48 object-cover"
         />
-        <div className="p-4 bg-opacity-50 bg-slate-200">
+        <div className="p-4 bg-opacity-50 backdrop-blur-sm bg-slate-200">
           <h3 className="text-xl font-semibold mb-2">{product.strMeal}</h3>
           <p className="text-gray-600 mb-2">Price: ${product.price}</p>
         </div>

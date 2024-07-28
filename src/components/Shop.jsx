@@ -68,7 +68,7 @@ const Shop = () => {
 
       {/* Main Content */}
 
-      <main className="container mx-auto p-6 pl-32 ">
+      <main className="container mx-auto p-6 lg:pl-32 ">
 
         {loading ? (
           <p>Loading products...</p>
