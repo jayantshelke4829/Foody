@@ -10,7 +10,7 @@ const HomePage = () => {
   return (
     <div className="bg-gray-100 min-h-screen p-6 bg-[url('https://e1.pxfuel.com/desktop-wallpaper/511/370/desktop-wallpaper-design-food-backgrounds-black-food.jpg')] bg-fixed bg-no-repeat bg-cover">
       <h1 className="text-3xl font-bold mb-4 text-slate-800">Cart </h1>
-      <Link to="/" className="underline mb-4 inline-block"><button className='bg-none  shadow-lg card rounded-md p-2'>Go to home</button></Link>
+      <Link to="/" className="underline mb-4 inline-block"><button className='bg-none  shadow-lg button rounded-md p-2'>Go to home</button></Link>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
         {/* Your shop items here */}
       </div>
