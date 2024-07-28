@@ -1,0 +1,16 @@
+
+.cards {
+      color: rgb(184, 199, 213);
+      }
+
+      .card{
+            --tw-bg-opacity: 1;
+            background-color: rgb(100 116 139 / var(--tw-bg-opacity))
+      }
+      .card:hover {
+            color: rgb(225, 211, 211);
+            background-color: rgb(12, 98, 226)}
+
+       
+            
+      
