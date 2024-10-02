@@ -1,16 +1,35 @@
-
 .cards {
-      color: rgb(184, 199, 213);
-      }
+  color: rgb(184, 199, 213);
+}
 
-      .button{
-            --tw-bg-opacity: 1;
-            background-color: rgb(100 116 139 / var(--tw-bg-opacity))
+.button {
+  --tw-bg-opacity: 1;
+  background-color: rgb(100 116 139 / var(--tw-bg-opacity));
+}
+.button:hover {
+  color: rgb(225, 211, 211);
+  background-color: rgb(12, 98, 226);
+}
+.removed {
+      animation: fade-out 1s ease-out both;
+    }
+    
+    @keyframes slide-in-bottom {
+      0% {
+        transform: translateY(1000px);
+        opacity: 0;
       }
-      .button:hover {
-            color: rgb(225, 211, 211);
-            background-color: rgb(12, 98, 226)}
-
-       
-            
-      
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes fade-out {
+      0% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
