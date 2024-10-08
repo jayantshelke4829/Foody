@@ -64,19 +64,21 @@ const HomePage = () => {
           <p className="text-gray-600">Quantity: {item.quantity}</p>
         </div>
         <div className="flex items-center space-x-2">
-        
+        { item.quantity === 1 ? (
           <button
             onClick={() => {deleteFromCart(item.idMeal), removed}}
             className=" bg-slate-600 text-white py-2 hover:text-red-500 px-4 rounded-lg shadow-lg"
           >
            <i className="fa fa-lg fa-trash"></i>
            </button>
+        ):(
           <button
             onClick={() => removeFromCart(item.idMeal)}
             className="bg-slate-600 text-white py-2 hover:text-blue-500 px-4 rounded-lg shadow-lg"
           >
             -
           </button>
+        )}
           <p className='text-white'>{item.quantity}</p>
           <button
             onClick={() => addToCart(item)}
@@ -84,6 +86,12 @@ const HomePage = () => {
           >
             +
           </button>
+          <button
+            onClick={() => {deleteFromCart(item.idMeal), removed}}
+            className=" bg-slate-600 text-white py-2 hover:text-red-500 px-4 rounded-lg shadow-lg"
+          >
+           <i className="fa fa-lg fa-trash"></i>
+           </button>
         </div>
       </li>
     ))}
