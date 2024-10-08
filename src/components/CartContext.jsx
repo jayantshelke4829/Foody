@@ -2,13 +2,14 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const CartContext = createContext();
 export const useCart = () => useContext(CartContext);
+export const URL = 'https://foody-backend-kjpp.onrender.com'
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 
   const fetchCart = async () => {
     try {
-      const response = await fetch('http://localhost:5000/save-cart', {
+      const response = await fetch(URL, {
         method: 'post',
         headers: {
           'Content-Type': 'application/json',
@@ -31,7 +32,7 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     // Fetch the cart from the backend when the component mounts
     const fetchCart = async () => {
-      const response = await fetch('http://localhost:5000/cart');
+      const response = await fetch(URL);
       const data = await response.json();
       setCart(data);
     };
@@ -40,7 +41,7 @@ export const CartProvider = ({ children }) => {
   }, []);
 
   const addToCart = async (item) => {
-  const response = await fetch('http://localhost:5000/cart', {
+  const response = await fetch(URL, {
     method: 'post',
     headers: {
       'Content-Type': 'application/json',
@@ -65,7 +66,7 @@ const removeFromCart = async (idMeal) => {
     // Check if the quantity is greater than 1
     if (item.quantity >= 1) {
       // Decrease the quantity by 1
-      const response = await fetch(`http://localhost:5000/cart/${idMeal}`, {
+      const response = await fetch(`https://foody-backend-kjpp.onrender.com/${idMeal}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +88,7 @@ const deleteFromCart = async (idMeal) => {
 
   if (item) {
     if (item.quantity > 1) {
-      const response = await fetch(`http://localhost:5000/cart/${idMeal}`, {
+      const response = await fetch(`https://foody-backend-kjpp.onrender.com/${idMeal}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -97,7 +98,7 @@ const deleteFromCart = async (idMeal) => {
       const updatedCart = await response.json();
       setCart(updatedCart);
     } else {
-      const response = await fetch(`http://localhost:5000/cart/${idMeal}`, {
+      const response = await fetch(`https://foody-backend-kjpp.onrender.com/${idMeal}`, {
         method: 'DELETE',
       });
       const updatedCart = await response.json();
