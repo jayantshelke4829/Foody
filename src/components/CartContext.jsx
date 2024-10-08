@@ -50,7 +50,8 @@ export const CartProvider = ({ children }) => {
       name: item.strMeal, // Ensure this is correct
       price: item.price,
       quantity: 1,
-      strMealThumb: item.strMealThumb // Make sure image is passed
+      strMealThumb: item.strMealThumb, // Make sure image is passed
+      strMeal: item.strMeal
     }),
   });
   const updatedCart = await response.json();
@@ -62,7 +63,7 @@ const removeFromCart = async (idMeal) => {
 
   if (item) {
     // Check if the quantity is greater than 1
-    if (item.quantity > 1) {
+    if (item.quantity >= 1) {
       // Decrease the quantity by 1
       const response = await fetch(`http://localhost:5000/cart/${idMeal}`, {
         method: 'PATCH',
