@@ -10,7 +10,7 @@ const HomePage = () => {
   // Function to send the cart data to the backend
   const saveCartToBackend = async (cartData) => {
     try {
-      const response = await fetch(`${URL}/api/save-cart`, {
+      const response = await fetch(`${URL}/api/cart`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
