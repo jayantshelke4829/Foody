@@ -118,14 +118,25 @@ export const CartProvider = ({ children }) => {
   };
 
   const getTotalItems = () => {
-    return Array.isArray(cart) ? cart.reduce((total, item) => total + item.quantity, 0) : 0;
+    return Array.isArray(cart)
+      ? cart.reduce((total, item) => {
+          const quantity = parseInt(item.quantity, 10); // Ensure quantity is a number
+          return total + (isNaN(quantity) ? 0 : quantity); // Check for NaN
+        }, 0)
+      : 0;
   };
-
+  
   const getCartTotal = () => {
     return Array.isArray(cart)
-      ? cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)
+      ? cart.reduce((total, item) => {
+          const price = parseFloat(item.price); // Ensure price is a number
+          const quantity = parseInt(item.quantity, 10); // Ensure quantity is a number
+          return total + (isNaN(price) || isNaN(quantity) ? 0 : price * quantity); // Check for NaN
+        }, 0)
+        .toFixed(2) // Format to two decimal places
       : '0.00';
   };
+  
 
   return (
     <CartContext.Provider
