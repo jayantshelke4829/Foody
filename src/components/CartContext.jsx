@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const CartContext = createContext();
 export const useCart = () => useContext(CartContext);
-export const URL = 'https://foody-backend-kjpp.onrender.com'; // Backend URL
+export const URL = 'https://foody-backend-kjpp.onrender.com';
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
@@ -25,12 +25,11 @@ export const CartProvider = ({ children }) => {
   }, []);
 
   const addToCart = async (item) => {
-    // Check if the item has valid values
     if (!item.idMeal || !item.strMeal || !item.price || item.quantity <= 0 || !item.strMealThumb) {
       console.error('Invalid item:', item);
-      return; // Exit the function early if the item is not valid
+      return;
     }
-  
+
     try {
       const response = await fetch(`${URL}/api/cart`, {
         method: 'POST',
@@ -39,24 +38,24 @@ export const CartProvider = ({ children }) => {
         },
         body: JSON.stringify({
           idMeal: item.idMeal,
-          name: item.strMeal,
+          strMeal: item.strMeal,
           price: item.price,
           quantity: 1,
           strMealThumb: item.strMealThumb,
         }),
       });
-      
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorResponse = await response.json();
+        throw new Error(`HTTP error! status: ${response.status}, details: ${errorResponse.error}`);
       }
-      
+
       const updatedCart = await response.json();
       setCart(updatedCart);
     } catch (error) {
       console.error('Failed to add item to cart:', error);
     }
   };
-  
 
   const removeFromCart = async (idMeal) => {
     const item = cart.find((product) => product.idMeal === idMeal);
@@ -69,13 +68,19 @@ export const CartProvider = ({ children }) => {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ quantity: -1 }), // Decrease quantity
+            body: JSON.stringify({ quantity: -1 }),
           });
-          
+
+          if (!response.ok) {
+            const errorResponse = await response.json();
+            throw new Error(`Failed to update quantity, details: ${errorResponse.error}`);
+          }
+
           const updatedCart = await response.json();
           setCart(updatedCart);
         } else {
-          console.log("Cannot remove item. At least one quantity must remain.");
+          // Remove the item completely if quantity is 1
+          await deleteFromCart(idMeal);
         }
       } catch (error) {
         console.error('Failed to remove item:', error);
@@ -84,75 +89,38 @@ export const CartProvider = ({ children }) => {
       console.log('Item not found in cart');
     }
   };
-  
-  const deleteFromCart = async (idMeal) => {
-    const item = cart.find((product) => product.idMeal === idMeal);
-    if (item) {
-      try {
-        if (item.quantity > 1) {
-          const response = await fetch(`${URL}/api/cart/${idMeal}`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ quantity: 0 }), // Set quantity to 0
-          });
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const updatedCart = await response.json();
-          setCart(updatedCart);
-        } else {
-          const response = await fetch(`${URL}/api/cart/${idMeal}`, {
-            method: 'DELETE',
-          });
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const updatedCart = await response.json();
-          setCart(updatedCart);
-        }
-      } catch (error) {
-        console.error('Failed to delete item from cart:', error);
-      }
-    }
-  };
 
-  const saveCart = async () => {
+  const deleteFromCart = async (idMeal) => {
     try {
-      for (const item of cart) {
-        await addToCart(item); // Use addToCart logic to save the cart
+      const response = await fetch(`${URL}/api/cart/${idMeal}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        throw new Error(`Failed to delete item, details: ${errorResponse.error}`);
       }
-      console.log('Cart saved successfully');
+
+      const updatedCart = await response.json();
+      setCart(updatedCart);
     } catch (error) {
-      console.error('Failed to save cart:', error);
+      console.error('Failed to delete item from cart:', error);
     }
   };
 
   const getTotalItems = () => {
-    return Array.isArray(cart)
-      ? cart.reduce((total, item) => {
-          const quantity = parseInt(item.quantity, 10); // Ensure quantity is a number
-          return total + (isNaN(quantity) ? 0 : quantity); // Check for NaN
-        }, 0)
-      : 0;
+    return Array.isArray(cart) ? cart.reduce((total, item) => total + item.quantity, 0) : 0;
   };
-  
+
   const getCartTotal = () => {
     return Array.isArray(cart)
-      ? cart.reduce((total, item) => {
-          const price = parseFloat(item.price); // Ensure price is a number
-          const quantity = parseInt(item.quantity, 10); // Ensure quantity is a number
-          return total + (isNaN(price) || isNaN(quantity) ? 0 : price * quantity); // Check for NaN
-        }, 0)
-        .toFixed(2) // Format to two decimal places
+      ? cart.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)
       : '0.00';
   };
-  
 
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, removeFromCart, getTotalItems, getCartTotal, deleteFromCart, saveCart }}
+      value={{ cart, addToCart, removeFromCart, getTotalItems, getCartTotal, deleteFromCart }}
     >
       {children}
     </CartContext.Provider>
