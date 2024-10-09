@@ -1,4 +1,3 @@
-// HomePage.jsx
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { URL, useCart } from "../components/CartContext";
@@ -17,7 +16,7 @@ const HomePage = () => {
         },
         body: JSON.stringify(cartData), // Send the cart data directly
       });
-  
+
       const data = await response.json();
       if (response.ok) {
         console.log("Cart saved successfully:", data);
@@ -28,11 +27,10 @@ const HomePage = () => {
       console.error("Error:", error);
     }
   };
-  
 
   // Save the cart to the backend whenever the cart changes
   useEffect(() => {
-    if (cart.length > 0) {
+    if (Array.isArray(cart) && cart.length > 0) {
       saveCartToBackend(cart);
     }
   }, [cart]);
@@ -53,7 +51,10 @@ const HomePage = () => {
       ) : (
         <ul className="space-y-4 backdrop-blur-sm w-full">
           {Array.isArray(cart) && cart.map((item) => (
-            <li key={`${item.idMeal}-${item.quantity}`} className="bg-white bg-opacity-25 rounded-lg shadow-lg p-4 flex justify-between items-center">
+            <li 
+              key={`${item.idMeal}-${item.quantity}`} 
+              className="bg-white bg-opacity-25 rounded-lg shadow-lg p-4 flex justify-between items-center"
+            >
               <div className='bg-slate-400 bg-opacity-80 p-4 rounded-lg shadow-lg'>
                 <Link to={`/product/${item.idMeal}`}>
                   <img src={item.strMealThumb} alt={item.strMeal} className="w-20 object-cover rounded-lg mb-2" />
