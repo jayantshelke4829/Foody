@@ -68,7 +68,7 @@ const HomePage = () => {
                     onClick={() => deleteFromCart(item.idMeal)}
                     className="bg-slate-600 text-white py-2 hover:text-red-500 px-4 rounded-lg shadow-lg"
                   >
-                    <i className="fa fa-lg fa-trash"></i>
+                    <i className="fa  fa-trash"></i>
                   </button>
                 ) : (
                   <button
@@ -85,6 +85,12 @@ const HomePage = () => {
                 >
                   +
                 </button>
+                <button
+                    onClick={() => deleteFromCart(item.idMeal)}
+                    className="bg-slate-600 text-white py-2 hover:text-red-500 px-4 rounded-lg shadow-lg"
+                  >
+                    <i className="fa fa-lg fa-trash"></i>
+                  </button>
               </div>
             </li>
           ))}
