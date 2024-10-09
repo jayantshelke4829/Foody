@@ -2,49 +2,31 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const CartContext = createContext();
 export const useCart = () => useContext(CartContext);
-export const URL = 'https://foody-backend-kjpp.onrender.com/api'; // Include `/api`
+export const URL = 'https://foody-backend-kjpp.onrender.com'; // Make sure this is the correct backend URL
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 
   const fetchCart = async () => {
     try {
-      const response = await fetch('https://foody-backend-kjpp.onrender.com/api/cart');
+      const response = await fetch(`${URL}/api/cart`); // Make sure this matches your backend routes
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
       setCart(data);
     } catch (error) {
       console.error('Failed to fetch cart:', error);
     }
   };
-  const saveCartToBackend = async (cartData) => {
-    try {
-      const response = await fetch('http://localhost:5000/api/save-cart', { // Include /api
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ cart: cartData }),
-      });
   
-      const data = await response.json();
-      if (response.ok) {
-        console.log('Cart saved successfully:', data);
-      } else {
-        console.error('Error saving cart:', data.message);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-    
-
   useEffect(() => {
     fetchCart();
   }, []);
 
   const addToCart = async (item) => {
     try {
-      const response = await fetch(`${URL}/cart`, {
+      const response = await fetch(`${URL}/api/cart`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,21 +37,25 @@ export const CartProvider = ({ children }) => {
           price: item.price,
           quantity: 1,
           strMealThumb: item.strMealThumb,
-          strMeal: item.strMeal
+          strMeal: item.strMeal,
         }),
       });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const updatedCart = await response.json();
       setCart(updatedCart);
     } catch (error) {
       console.error('Failed to add item to cart:', error);
     }
   };
+  
 
   const removeFromCart = async (idMeal) => {
     const item = cart.find((product) => product.idMeal === idMeal);
     if (item && item.quantity > 1) {
       try {
-        const response = await fetch(`${URL}/cart/${idMeal}`, {
+        const response = await fetch(`${URL}/api/cart/${idMeal}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -91,7 +77,7 @@ export const CartProvider = ({ children }) => {
     if (item) {
       try {
         if (item.quantity > 1) {
-          const response = await fetch(`${URL}/cart/${idMeal}`, {
+          const response = await fetch(`${URL}/api/cart/${idMeal}`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
@@ -101,7 +87,7 @@ export const CartProvider = ({ children }) => {
           const updatedCart = await response.json();
           setCart(updatedCart);
         } else {
-          const response = await fetch(`${URL}/cart/${idMeal}`, {
+          const response = await fetch(`${URL}/api/cart/${idMeal}`, {
             method: 'DELETE',
           });
           const updatedCart = await response.json();
@@ -110,6 +96,22 @@ export const CartProvider = ({ children }) => {
       } catch (error) {
         console.error('Failed to delete item from cart:', error);
       }
+    }
+  };
+
+  const saveCart = async () => {
+    try {
+      const response = await fetch(`${URL}/api/save-cart`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ cart }),
+      });
+      const result = await response.json();
+      console.log(result.message); // 'Cart saved successfully'
+    } catch (error) {
+      console.error('Failed to save cart:', error);
     }
   };
 
@@ -125,7 +127,7 @@ export const CartProvider = ({ children }) => {
 
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, removeFromCart, getTotalItems, getCartTotal, deleteFromCart }}
+      value={{ cart, addToCart, removeFromCart, getTotalItems, getCartTotal, deleteFromCart, saveCart }}
     >
       {children}
     </CartContext.Provider>
