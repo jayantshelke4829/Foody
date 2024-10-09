@@ -2,16 +2,16 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 
 const CartContext = createContext();
 export const useCart = () => useContext(CartContext);
-export const URL = 'https://foody-backend-kjpp.onrender.com'; // Ensure this is the correct backend URL
+export const URL = 'https://foody-backend-kjpp.onrender.com'; // Backend URL
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
 
   const fetchCart = async () => {
     try {
-      const response = await fetch(`${URL}/api/cart`); // Ensure this matches your backend routes
+      const response = await fetch(`${URL}/api/cart`);
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
       setCart(data);
@@ -19,7 +19,7 @@ export const CartProvider = ({ children }) => {
       console.error('Failed to fetch cart:', error);
     }
   };
-
+  
   useEffect(() => {
     fetchCart();
   }, []);
@@ -33,15 +33,14 @@ export const CartProvider = ({ children }) => {
         },
         body: JSON.stringify({
           idMeal: item.idMeal,
-          name: item.strMeal,
+          strMeal: item.strMeal,
           price: item.price,
           quantity: 1,
           strMealThumb: item.strMealThumb,
-          strMeal: item.strMeal,
         }),
       });
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       const updatedCart = await response.json();
       setCart(updatedCart);
@@ -52,71 +51,71 @@ export const CartProvider = ({ children }) => {
 
   const removeFromCart = async (idMeal) => {
     const item = cart.find((product) => product.idMeal === idMeal);
-    if (item) {
+    if (item && item.quantity > 1) {
       try {
-        const newQuantity = item.quantity > 1 ? item.quantity - 1 : 0;
-
         const response = await fetch(`${URL}/api/cart/${idMeal}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ quantity: newQuantity }), // Update quantity
+          body: JSON.stringify({ quantity: -1 }), // Decrease quantity
         });
-
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-
         const updatedCart = await response.json();
         setCart(updatedCart);
       } catch (error) {
-        console.error('Failed to update item quantity:', error);
+        console.error('Failed to remove item:', error);
       }
+    } else {
+      console.log("Cannot remove item. At least one quantity must remain.");
     }
   };
 
   const deleteFromCart = async (idMeal) => {
-    try {
-      const response = await fetch(`${URL}/api/cart/${idMeal}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+    const item = cart.find((product) => product.idMeal === idMeal);
+    if (item) {
+      try {
+        if (item.quantity > 1) {
+          const response = await fetch(`${URL}/api/cart/${idMeal}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ quantity: 0 }), // Set quantity to 0
+          });
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const updatedCart = await response.json();
+          setCart(updatedCart);
+        } else {
+          const response = await fetch(`${URL}/api/cart/${idMeal}`, {
+            method: 'DELETE',
+          });
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const updatedCart = await response.json();
+          setCart(updatedCart);
+        }
+      } catch (error) {
+        console.error('Failed to delete item from cart:', error);
       }
-
-      const updatedCart = await response.json();
-      setCart(updatedCart);
-    } catch (error) {
-      console.error('Failed to delete item from cart:', error);
     }
   };
 
   const saveCart = async () => {
     try {
-      const response = await fetch(`${URL}/api/save-cart`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ cart }),
-      });
-      
-      console.log("Response status:", response.status); // Log the response status
-      console.log("Response headers:", response.headers.get('content-type')); // Log the response type
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+      for (const item of cart) {
+        await addToCart(item); // Use addToCart logic to save the cart
       }
-  
-      const result = await response.json();
-      console.log(result.message); // 'Cart saved successfully'
+      console.log('Cart saved successfully');
     } catch (error) {
       console.error('Failed to save cart:', error);
     }
   };
-  
 
   const getTotalItems = () => {
     return Array.isArray(cart) ? cart.reduce((total, item) => total + item.quantity, 0) : 0;
