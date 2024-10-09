@@ -25,6 +25,12 @@ export const CartProvider = ({ children }) => {
   }, []);
 
   const addToCart = async (item) => {
+    // Check if the item has valid values
+    if (!item.idMeal || !item.strMeal || !item.price || item.quantity <= 0 || !item.strMealThumb) {
+      console.error('Invalid item:', item);
+      return; // Exit the function early if the item is not valid
+    }
+  
     try {
       const response = await fetch(`${URL}/api/cart`, {
         method: 'POST',
@@ -33,46 +39,52 @@ export const CartProvider = ({ children }) => {
         },
         body: JSON.stringify({
           idMeal: item.idMeal,
-          strMeal: item.strMeal,
+          name: item.strMeal,
           price: item.price,
           quantity: 1,
           strMealThumb: item.strMealThumb,
         }),
       });
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
       const updatedCart = await response.json();
       setCart(updatedCart);
     } catch (error) {
       console.error('Failed to add item to cart:', error);
     }
   };
+  
 
   const removeFromCart = async (idMeal) => {
     const item = cart.find((product) => product.idMeal === idMeal);
-    if (item && item.quantity > 1) {
+    
+    if (item) {
       try {
-        const response = await fetch(`${URL}/api/cart/${idMeal}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ quantity: -1 }), // Decrease quantity
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        if (item.quantity > 1) {
+          const response = await fetch(`${URL}/api/cart/${idMeal}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ quantity: -1 }), // Decrease quantity
+          });
+          
+          const updatedCart = await response.json();
+          setCart(updatedCart);
+        } else {
+          console.log("Cannot remove item. At least one quantity must remain.");
         }
-        const updatedCart = await response.json();
-        setCart(updatedCart);
       } catch (error) {
         console.error('Failed to remove item:', error);
       }
     } else {
-      console.log("Cannot remove item. At least one quantity must remain.");
+      console.log('Item not found in cart');
     }
   };
-
+  
   const deleteFromCart = async (idMeal) => {
     const item = cart.find((product) => product.idMeal === idMeal);
     if (item) {
