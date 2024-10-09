@@ -102,17 +102,21 @@ export const CartProvider = ({ children }) => {
         },
         body: JSON.stringify({ cart }),
       });
-
+      
+      console.log("Response status:", response.status); // Log the response status
+      console.log("Response headers:", response.headers.get('content-type')); // Log the response type
+  
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-
+  
       const result = await response.json();
       console.log(result.message); // 'Cart saved successfully'
     } catch (error) {
       console.error('Failed to save cart:', error);
     }
   };
+  
 
   const getTotalItems = () => {
     return Array.isArray(cart) ? cart.reduce((total, item) => total + item.quantity, 0) : 0;
